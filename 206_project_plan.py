@@ -13,11 +13,7 @@ import sqlite3
 from pprint import pprint
 
 # Write your test cases here.
-class MovieTests(unittest.Testcase):
-	base_url = "http://www.omdbapi.com/"
-    params = {}
-    params["t"] = "the dark knight rises"
-    r = requests.get(base_url, params = {"t": "Source Code"})
+class MovieTests(unittest.TestCase):
 	def test_1(self):
 		source_code = Movie(source_code_data)
 		self.assertEqual(movie.title, "Source Code")
@@ -30,35 +26,33 @@ class MovieTests(unittest.Testcase):
 	def test_4(self):
 		source_code_length = Movie(source_code_data)
 		self.assertEqual(source_code_length.extremely_long_movie(), "This movie is less than 2 hours.  Enjoy!")
-class DatabaseTests(unittest.Testcase):
+class DBTests(unittest.TestCase):
 	def test_5(self):
 		conn = sqlite3.connect('finalproject.db')
-        cur = conn.cursor()
-        cur.execute('SELECT * FROM Movies')
-        result = cur.fetchall()
-        self.assertEqual()
-        conn.close()
+		cur = conn.cursor()
+		cur.execute('SELECT * FROM Tweets');
+		result = cur.fetchall()
+		self.assertTrue(len(result)>=20)
+		conn.close()
 	def test_6(self):
 		conn = sqlite3.connect('finalproject.db')
-        cur = conn.cursor()
-        cur.execute('SELECT * FROM Movies')
-        result = cur.fetchall()
-        self.assertEqual()
-        conn.close()
+		cur = conn.cursor()
+		cur.excute('SELECT * FROM Tweets'); 
+		result = cur.fetchall()
+		self.assertEqual(len(result[0]), 6)
+		conn.close()
 	def test_7(self):
 		conn = sqlite3.connect('finalproject.db')
-        cur = conn.cursor()
-        cur.execute('SELECT * FROM Movies')
-        result = cur.fetchall()
-        self.assertEqual()
-        conn.close()
+		cur = conn.cursor()
+		cur.execute('SELECT * FROM Movies');
+		result = cur.fetchall()
+		self.assertEqual(len(result[0]), 6)	
 	def test_8(self):
 		conn = sqlite3.connect('finalproject.db')
-        cur = conn.cursor()
-        cur.execute('SELECT * FROM Movies')
-        result = cur.fetchall()
-        self.assertEqual()
-        conn.close()
+		cur = conn.cursor()
+		cur.execute('SELECT * FROM Users'); 
+		result = cur.fetchall()
+		self.assertEqual(len(resutl[0]), 3)
 ## Remember to invoke all your tests...
 if __name__ == "__main__":
     unittest.main(verbosity=2)
