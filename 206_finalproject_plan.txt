@@ -93,7 +93,7 @@ I want to make a query that will get the movie with the highest billed actor.
 
 * What are at least 2 of the data processing mechanics you're planning to use? 
 
-
+I plan on using both dictionary and list comprehension.  
 
 
 
@@ -101,8 +101,9 @@ I want to make a query that will get the movie with the highest billed actor.
 (e.g. "Set comprehension: I think I'm going to be looking for unique names and proper nouns in this big set of text, so I'm going to use a set comprehension"). 
 >>>This is especially important if you are doing Option 3, but it's important for everyone!<<<
 
-
-
+Set comprehension: 
+List comprehension: I think I am going to use list comprehension for querying the Users database to make an organized list of Users. 
+Dictionary comprehension: I think dictionary comprehension will be beneficial as I hope to create a dictionary with the the top billed actor as the key and the amount of money as the value.  
 
 * What will your output look like? Will it be a .txt file? a CSV file? something else? What information will it contain? >>>This is especially important if you are doing Option 3, but it's important for everyone!<<<
 
