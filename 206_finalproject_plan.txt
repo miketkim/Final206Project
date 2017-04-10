@@ -1,0 +1,111 @@
+SI 206 W17
+Put your name here: Michael Kim
+
+----
+
+Which option for the final project are you choosing -- 1, 2, or 3? Option 2 
+THE FOLLOWING QUESTIONS ARE FOR EVERYONE. (Though they may be easier if you are choosing Option 1 or 2, because you can reference the Option 1 or 2 instructions.)
+
+* What will at least one of the classes you're going to define be called?
+Movie 
+
+* What will that class take as input to its constructor?
+The name of the movie in a string form. 
+
+
+* What will 1 instance of this class represent?
+It will represent the movie with relevant data from the OMDB API containing elements such as the title, actors, director, and other parameters listed.  
+
+
+* What are 3 instance variables this class will have? What will they be called, and what information will they hold? Why are they important?
+Title: A string containing the title of the movie.  
+Actors: A list containing strings of relevant actors. 
+Director: A string containing the director of the movie. 
+
+These instance variables are important to being stored inside the database. 
+
+* Explain 2 methods the class will have that are not the class constructor (__init__ method) by answering the following questions for each. 
+ONE METHOD:
+- What will the name of the method be?
+extremely_long_movie
+
+- What will the method do?
+This method will take the JSON formatted dictionary that is already required for the movie class and will not have any additional inputs.  If a movie is equal to or longer than than 2 hours, the method will return a a string saying ‘This is a long movie.  Proceed with caution.”  If a movie is shorter than 2 hours, the method will return “This movie is less than 2 hours.  Enjoy!”  
+
+- Will it take any additional input? 
+No it will not take any additional inputs. 
+
+- Will it return anything? Should it change anything about the instance/an instance variable? 
+It will say if the movie is longer/shorter than 2 hours by returning the proper string has mentioned above.  
+
+- Why is it useful for this class definition, in this program?
+For a user who doesn’t like watching long movies like myself, I feel that like minded people will enjoy this aspect of the program since they can find what movies fit their sensitive time restraints quickly rather than finding out that movie is extremely long while they’re watching it.  
+
+
+ANOTHER METHOD:
+- What will the name of the method be?
+directors
+
+
+- What will the method do?
+It will return the director or directors for the searched movie as a string. 
+
+- Will it take any additional input? 
+It will not require any additional input.
+
+
+- Will it return anything? Should it change anything about the instance/an instance variable? 
+It will return a string of director(s).  Not instance variables will be modified.  
+
+
+
+- Why is it useful for this class definition, in this program?
+To view relevant directors for movies. 
+
+
+[If you definitely want to have a third, feel free to answer those questions a third time, because you'll have to do so eventually. when you write documentation!]
+
+
+* What will the tables in your database be?
+Tweets, Movies, Users 
+
+
+* What fields will each database table have? Which field of them is the primary key? You should list the fields for each database table here, e.g.
+Tweets:
+- text, user_id, movie_id, tweet_id (primary key), num_retweets, num_favorites
+Movies:
+- movie_id(primary key), title, director, num_languages, imdb_rating, top_billed_actor
+Users:
+- user_id(primary key), screen_name, num_favs, description 
+
+
+
+* List, in English, 2 queries you'll want to make from your database. At least one should be a JOIN. You can always change these later, but start with  ideas you're interested in and lessen the work on yourself later on! 
+(e.g. from class examples, maybe "I want to make a query that accesses the numbers of times each user has favorited tweets, and the number of times tweets that user posted have been favorited -- so I'll be joining the Tweets table and the Users table")
+
+Query 1:
+I want to make a query that will find the to title of a movie and will return the tweets with the most retweets and favorites containing the title of the movie.  Therefore, I will be joining the Tweets and Movies tables.  
+
+Query 2: 
+I want to make a query that will get the movie with the highest billed actor. 
+
+
+
+* What are at least 2 of the data processing mechanics you're planning to use? 
+
+
+
+
+
+* Why will each of those be useful to you? What data might you use it on? 
+(e.g. "Set comprehension: I think I'm going to be looking for unique names and proper nouns in this big set of text, so I'm going to use a set comprehension"). 
+>>>This is especially important if you are doing Option 3, but it's important for everyone!<<<
+
+
+
+
+* What will your output look like? Will it be a .txt file? a CSV file? something else? What information will it contain? >>>This is especially important if you are doing Option 3, but it's important for everyone!<<<
+
+I plan on having my output in a .txt format.  In the file, it will have a variety information such as the highest billed actor, the user with the most retweets/favorites about a specific movie.  
+
+
