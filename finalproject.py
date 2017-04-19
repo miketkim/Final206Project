@@ -1,3 +1,8 @@
+#SI 206 Final Project
+# Michael Kim 
+# Option 2 
+
+#Import Statements 
 import requests
 import unittest 
 import itertools 
@@ -63,9 +68,9 @@ def list_of_movie_dictionaries(title1, title2, title3): #Defining a function to 
 	movie_dictionaries.append(title3)
 	return movie_dictionaries
 
-batman = omdb_data('Batman')
-superman = omdb_data('Superman')
-antman = omdb_data('Antman')
+batman = omdb_data(a[0])
+superman = omdb_data(a[1])
+antman = omdb_data(a[2])
 
 b = list_of_movie_dictionaries(batman, superman, antman)
 # print (b)
@@ -223,6 +228,7 @@ conn.commit()
 # users_table_spec += 'Users (users_ids TEXT PRIMARY KEY, users TEXT, number_favs_by_user INTEGER'
 # cur.excute(users_table_spec)
 
+conn.close()
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~TEST CASES~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 class MovieTests(unittest.TestCase):
