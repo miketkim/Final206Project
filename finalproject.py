@@ -41,7 +41,7 @@ def movie_title_search(title1, title2, title3): #defined a function to make a li
 	return movie_titles
 
 a = movie_title_search(input("Enter a movie title: "), input('Enter another movie title: '), input('Enter a 3rd movie title: ')) #calling the function to get a list of movie titles
-print (a)
+# print (a)
 
 def omdb_data(movie_title): #Defining a function to use OMDB API 	
 	movie_data_by_title = requests.get('http://www.omdbapi.com?', params = {'t': movie_title})
@@ -68,7 +68,7 @@ superman = omdb_data('Superman')
 antman = omdb_data('Antman')
 
 b = list_of_movie_dictionaries(batman, superman, antman)
-print (b)
+# print (b)
 
 def list_of_movie_instances(title1, title2, title3):
 	movie_instances=[]
@@ -106,9 +106,9 @@ class Movie:
 		return self.omdb_moviedata['Rated']
 
 Batman_data = Movie(b[0])
-print (Batman_data.get_list_of_actors())
-print (Batman_data.get_movie_rating())
-print (Batman_data.get_plot())
+# print (Batman_data.get_list_of_actors())
+# print (Batman_data.get_movie_rating())
+# print (Batman_data.get_plot())
 # # Superman_data = Movie(b[1])
 # # Antman_data = Movie(b[2])
 
@@ -135,8 +135,30 @@ def tweets(search):
 		cache.close()
 	return tweets['statuses']
 
-twitter = tweets('Lonzo Ball')
-print (twitter)
+
+movie1tweets = tweets(a[0])
+movie2tweets = tweets(a[1])
+movie3tweets = tweets(a[2])
+
+
+def tweet_tuple(tweet_list):
+	for movie in tweet_list:
+		if 'text' in movie: 
+			text = movie['text']
+		if 'id_str' in movie: 
+			tweet_id = movie['id_str']
+		if "user" in movie:
+			user_id = movie['user']['id_str']
+		if 'favorite_count' in movie: 
+			favorites = movie['favorite_count']
+		if 'retweet_count' in movie: 
+			retweets = movie['retweet_count']
+	tweet_tuple = (tweet_id, text, user_id, favorites, retweets)
+	return tweet_tuple
+
+tweet_tuple_list = [tweet_tuple(movie1tweets), tweet_tuple(movie2tweets), tweet_tuple(movie3tweets)]
+
+print (tweet_tuple_list)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Twitter Users~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -169,17 +191,37 @@ cur.execute('DROP TABLE IF EXISTS Users')
 cur.execute('DROP TABLE IF EXISTS Movies')
 
 
-tweets_table_spec ='CREATE TABLE IF NOT EXISTS '
-tweets_table_spec += 'Tweets (tweet_id TEXT PRIMARY KEY, text TEXT, user TEXT, movie_search_term TEXT, num_favs INTEGER, num_retweets INTEGER'
+tweets_table_spec ='CREATE TABLE IF NOT EXISTS Tweets (tweet_id TEXT PRIMARY KEY, message TEXT, user_id TEXT, num_favs INTEGER, num_retweets INTEGER)' 
 cur.execute(tweets_table_spec)	
 
-movies_table_spec = 'CREATE TABLE IF NOT EXISTS'
-movies_table_spec += 'Movies (movie_ID TEXT PRIMARY KEY, title TEXT, director TEXT, num_languages INTEGER, IMDB_rating TEXT'
-cur.execute(movies_table_spec)
+tweet_db = 'INSERT INTO Tweets VALUES (?, ?, ?, ?, ?)'
+for tweet in tweet_tuple_list:
+	cur.execute(tweet_db, tweet)
+conn.commit()
 
-users_table_spec = 'CREATE TABLE IF NOT EXISTS'
-users_table_spec += 'Users (users_ids TEXT PRIMARY KEY, users TEXT, number_favs_by_user INTEGER'
-cur.excute(users_table_spec)
+movies_table_spec = 'CREATE TABLE IF NOT EXISTS Movies (movie_ID TEXT PRIMARY KEY, title TEXT, director TEXT, num_languages INT, IMDB_rating TEXT)'
+cur.execute(movies_table_spec)
+conn.commit()
+
+movie_database= []
+for row in b:
+	movie_id = row['imdbID']
+	title = row['Title']
+	director = row['Director']
+	imdb = row['imdbRating']
+	languages = row['Language']
+	movie_tuple = (movie_id, title, director, languages, imdb)
+	movie_database.append(movie_tuple)
+print (movie_database)
+
+movie_db = "INSERT INTO Movies VALUES (?, ?, ?, ?, ?)"
+for movie in movie_database:
+	cur.execute(movie_db, movie)
+conn.commit()
+
+# users_table_spec = 'CREATE TABLE IF NOT EXISTS'
+# users_table_spec += 'Users (users_ids TEXT PRIMARY KEY, users TEXT, number_favs_by_user INTEGER'
+# cur.excute(users_table_spec)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~TEST CASES~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
