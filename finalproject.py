@@ -27,7 +27,7 @@ api = tweepy.API(auth, parser=tweepy.parsers.JSONParser())
 
 # Begin filling in instructions....
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~OMDB API~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~OMDB caching~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 omdb_moviedata = "omdb_data.json" #caching pattern for OMDB Data 
 try:
@@ -38,15 +38,7 @@ try:
 except:
 	omdb_diction = {}
 
-def movie_title_search(title1, title2, title3): #defined a function to make a list of movie titles 
-	movie_titles=[]
-	movie_titles.append(title1)
-	movie_titles.append(title2)
-	movie_titles.append(title3)
-	return movie_titles
-
-a = movie_title_search(input("Enter a movie title: "), input('Enter another movie title: '), input('Enter a 3rd movie title: ')) #calling the function to get a list of movie titles
-# print (a)
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~    OMDB API ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 def omdb_data(movie_title): #Defining a function to use OMDB API 	
 	movie_data_by_title = requests.get('http://www.omdbapi.com?', params = {'t': movie_title})
@@ -61,45 +53,27 @@ def omdb_data(movie_title): #Defining a function to use OMDB API
 		cache_file.close()
 		return json.loads(omdb_data)
 
-def list_of_movie_dictionaries(title1, title2, title3): #Defining a function to get the data the 3 dictionaries contain about specific movies into a list 
-	movie_dictionaries = []
-	movie_dictionaries.append(title1)
-	movie_dictionaries.append(title2)
-	movie_dictionaries.append(title3)
-	return movie_dictionaries
+list_of_movie_titles = ('Batman', 'Ironman', 'Superman') #making a list of at least three movies 
 
-batman = omdb_data(a[0])
-superman = omdb_data(a[1])
-antman = omdb_data(a[2])
+movie1 = omdb_data(list_of_movie_titles[0])
+movie2 = omdb_data(list_of_movie_titles[1])
+movie3 = omdb_data(list_of_movie_titles[2])
 
-b = list_of_movie_dictionaries(batman, superman, antman)
-# print (b)
+list_of_movie_dictionaries = [movie1, movie2, movie3]  #Creating a list of Movie dictionaries using omdb_data function (defined above)
 
-def list_of_movie_instances(title1, title2, title3):
-	movie_instances=[]
-	movie_instances.append(title1)
-	movie_instances.append(title2)
-	movie_instances.append(title3)
-	return movie_instances
 
 class Movie:
-	def __init__(self, omdb_moviedata = {}):
+	def __init__(self, omdb_moviedata):
 		self.omdb_moviedata = omdb_moviedata
-		if "Title" in omdb_moviedata:
-			self.title = self.omdb_moviedata['Title']
-		if "Runtime" in omdb_moviedata:
-			self.runtime = self.omdb_moviedata['Runtime']
-		if 'Director' in omdb_moviedata:
-			self.director = self.omdb_moviedata['Director']
+		self.title = omdb_moviedata['Title']
+		self.runtime = omdb_moviedata['Runtime']
+		self.director = omdb_moviedata['Director']
 
-	# def get_Rotten_Tomatoes(self):
-	# 	return omdb_moviedata['Ratings']['IMD']
-
-	def get_list_of_actors(self):
-		return self.omdb_moviedata['Actors']
+	def get_best_actor(self):
+		return self.omdb_moviedata['Actors'].split(',')[0]
 
 	def get_number_of_languages(self):
-		return self.omdb_moviedata['Language']
+		return len(self.omdb_moviedata['Language'].split(','))
 
 	def get_plot(self):
 		return self.omdb_moviedata['Plot']
@@ -108,14 +82,43 @@ class Movie:
 		return self.omdb_moviedata['Year']
 
 	def get_movie_rating(self):
-		return self.omdb_moviedata['Rated']
+		return self.omdb_moviedata['imdbRating']
 
-Batman_data = Movie(b[0])
-# print (Batman_data.get_list_of_actors())
-# print (Batman_data.get_movie_rating())
-# print (Batman_data.get_plot())
-# # Superman_data = Movie(b[1])
-# # Antman_data = Movie(b[2])
+	def get_id(self):
+		return self.omdb_moviedata['imdbID']
+
+	def __str__(self):
+		return "{} is directed by {} and is {}".format(self.title, self.director, self.runtime)
+
+movie_objects=[] 			# Creating a Movie instances in a list for three movies 
+for x in list_of_movie_dictionaries:
+	mov_object = Movie(x)
+	movie_objects.append(mov_object)
+
+
+def get_movie_data(movie_lst):  #CHANGE THIS 
+	movie_tuple_list = []
+	for movie in movie_objects:  
+		movie_id = movie.get_id()
+		movie_director = movie.director
+		movie_title = movie.title
+		movie_imdb_rating = movie.get_movie_rating() 
+		movie_lead_actor = movie.get_best_actor()
+		movie_num_lang = movie.get_number_of_languages()
+
+		movie_tup = (movie_id, movie_title, movie_director, movie_num_lang, movie_imdb_rating, movie_lead_actor)
+		movie_tuple_list.append(movie_tup)
+
+	return movie_tuple_list
+
+movie_tuple_list = get_movie_data(movie_objects)
+
+# pprint (movie_tuple_list)
+
+
+
+
+
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Tweets~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -141,34 +144,42 @@ def tweets(search):
 	return tweets['statuses']
 
 
-movie1tweets = tweets(a[0])
-movie2tweets = tweets(a[1])
-movie3tweets = tweets(a[2])
+movie1tweets = tweets(list_of_movie_titles[0])
+movie2tweets = tweets(list_of_movie_titles[1])
+movie3tweets = tweets(list_of_movie_titles[2])
+
+movietweetlist = [movie1tweets, movie2tweets, movie3tweets]  #Making a list of tweets using the title of each movie 
+
+# pprint (movie1tweets)
 
 
-def tweet_tuple(tweet_list):
-	for movie in tweet_list:
-		if 'text' in movie: 
-			text = movie['text']
-		if 'id_str' in movie: 
-			tweet_id = movie['id_str']
-		if "user" in movie:
-			user_id = movie['user']['id_str']
-		if 'favorite_count' in movie: 
-			favorites = movie['favorite_count']
-		if 'retweet_count' in movie: 
-			retweets = movie['retweet_count']
-	tweet_tuple = (tweet_id, text, user_id, favorites, retweets)
-	return tweet_tuple
+tweet_tuple_list = []
+for x in movietweetlist:
+	for movie in x:
+		text = movie['text']	
+		tweet_id = movie['id_str']
+		user_id = movie['user']['id_str']
+		favorites = movie['favorite_count']
+		retweets = movie['retweet_count']
+		if "Batman" in movie['text']:
+			movie_name = "Batman"
+		if "Superman" in movie['text']:
+			movie_name = "Superman"
+		if "Antman" in movie['text']: 
+			movie_name = 'Antman'
 
-tweet_tuple_list = [tweet_tuple(movie1tweets), tweet_tuple(movie2tweets), tweet_tuple(movie3tweets)]
+		tweet_tuple = (tweet_id, text, user_id, favorites, retweets, movie_name)
+		tweet_tuple_list.append(tweet_tuple)
 
-print (tweet_tuple_list)
+
+# pprint (tweet_tuple_list)
+
+
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Twitter Users~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-twitter_user_data = 'twitter_user_data'
+twitter_user_data = 'twitter_user_data.json'
 try:
 	cache_file = open(twitter_user_data, 'r')
 	cache_contents = cache_file.read()
@@ -179,11 +190,68 @@ except:
 
 
 
-# def twitteruserdata(handle):
-# 	if handle in twitter_user_diction:
-# 		user = twitter_user_diction[handle]
-# 	else:
-# 		user = api.
+def getting_twitter_user_info(movietweetsdict):
+	twitter_user_tuples = []	
+	for x in movietweetsdict:
+		user_id = x['user']['id_str']
+		screen_name = x['user']['screen_name']
+		num_favs = x['user']['favourites_count']
+		num_followers = x['user']['followers_count']
+		location = x['user']['location']
+		movie_tweets_user_tup = (user_id, screen_name, num_favs, num_followers, location)
+		twitter_user_tuples.append(movie_tweets_user_tup)
+
+		if screen_name not in twitter_user_diction:
+			twitter_user_diction[screen_name] = x['user']
+			cache_file = open(twitter_user_data, 'w')
+			cache_file.write(json.dumps(twitter_user_diction, indent =2))
+			cache_file.close()
+	return twitter_user_tuples
+
+def getting_twitter_user_mentions(movietweetsdict):
+	twitter_user_list = []
+	for x in movietweetsdict:
+		user_mentions = x['entities']['user_mentions']
+		for y in user_mentions:
+			user_mentions_info = api.get_user(y['screen_name'])
+			user_id = y['id_str']
+			screen_name = y['screen_name']
+			num_favs = user_mentions_info['favourites_count']
+			num_followers = user_mentions_info['followers_count']
+			location = user_mentions_info['location']
+			movie_tweets_user_tup = (user_id, screen_name, num_favs, num_followers, location)
+			twitter_user_list.append(movie_tweets_user_tup)
+
+			if y["screen_name"] not in twitter_user_diction:
+				twitter_user_diction[y["screen_name"]] = user_mentions
+				cache_file = open(twitter_user_data, 'w')
+				cache_file.write(json.dumps(twitter_user_diction, indent =2))
+				cache_file.close()
+	return twitter_user_list
+
+
+movie1users = getting_twitter_user_info(movie1tweets)
+
+movie1usermentions = getting_twitter_user_mentions(movie1tweets)
+
+movie2users = getting_twitter_user_info(movie2tweets)
+
+movie2usermentions = getting_twitter_user_mentions(movie2tweets)
+
+movie3users = getting_twitter_user_info(movie3tweets)
+
+movie3usermentions = getting_twitter_user_mentions(movie3tweets)
+
+
+twitter_user_list = [movie1users + movie1usermentions + movie2users + movie2usermentions + movie3users + movie3usermentions]
+
+twitter_touple_lst = []
+for x in twitter_user_list:
+	for y in x:
+		twitter_touple_lst.append(y)
+
+
+
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~SQL Database Part~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -196,65 +264,61 @@ cur.execute('DROP TABLE IF EXISTS Users')
 cur.execute('DROP TABLE IF EXISTS Movies')
 
 
-tweets_table_spec ='CREATE TABLE IF NOT EXISTS Tweets (tweet_id TEXT PRIMARY KEY, message TEXT, user_id TEXT, num_favs INTEGER, num_retweets INTEGER)' 
+tweets_table_spec = 'CREATE TABLE IF NOT EXISTS Tweets (tweet_id TEXT PRIMARY KEY, message TEXT, user_id TEXT, num_favs INTEGER, num_retweets INTEGER, movie_name TEXT)' 
 cur.execute(tweets_table_spec)	
 
-tweet_db = 'INSERT INTO Tweets VALUES (?, ?, ?, ?, ?)'
+tweet_db = 'INSERT INTO Tweets VALUES (?, ?, ?, ?, ?, ?)'
 for tweet in tweet_tuple_list:
 	cur.execute(tweet_db, tweet)
 conn.commit()
 
-movies_table_spec = 'CREATE TABLE IF NOT EXISTS Movies (movie_ID TEXT PRIMARY KEY, title TEXT, director TEXT, num_languages INT, IMDB_rating TEXT)'
+movies_table_spec = 'CREATE TABLE IF NOT EXISTS Movies (movie_ID TEXT PRIMARY KEY, title TEXT, director TEXT, num_languages INT, IMDB_rating TEXT, best_actor TEXT)'
 cur.execute(movies_table_spec)
-conn.commit()
 
-movie_database= []
-for row in b:
-	movie_id = row['imdbID']
-	title = row['Title']
-	director = row['Director']
-	imdb = row['imdbRating']
-	languages = row['Language']
-	movie_tuple = (movie_id, title, director, languages, imdb)
-	movie_database.append(movie_tuple)
-print (movie_database)
-
-movie_db = "INSERT INTO Movies VALUES (?, ?, ?, ?, ?)"
-for movie in movie_database:
+movie_db = "INSERT INTO Movies VALUES (?, ?, ?, ?, ?, ?)"
+for movie in movie_tuple_list:
 	cur.execute(movie_db, movie)
 conn.commit()
 
-# users_table_spec = 'CREATE TABLE IF NOT EXISTS'
-# users_table_spec += 'Users (users_ids TEXT PRIMARY KEY, users TEXT, number_favs_by_user INTEGER'
-# cur.excute(users_table_spec)
+
+users_table = 'CREATE TABLE IF NOT EXISTS Users (user_ID TEXT PRIMARY KEY, user TEXT, number_favs_by_user INTEGER, number_followers INTEGER, location TEXT)'
+cur.execute(users_table)
+
+user_db = 'INSERT or IGNORE INTO Users VALUES (?, ?, ?, ?, ?)'
+for user in twitter_touple_lst:
+	cur.execute(user_db, user)
+conn.commit()
+
 
 conn.close()
+
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~TEST CASES~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+source_code_data = omdb_data('Source Code')
+source_code = Movie(source_code_data)
+conn = sqlite3.connect('finalproject.db')
+cur = conn.cursor()
+cur.execute('SELECT movie_ID FROM Movies');
+result = cur.fetchall()
+# print (result[1][0])
+
 
 class MovieTests(unittest.TestCase):
 	def test_1(self):
-		source_code_data = omdb_data('Source Code')
-		source_code = Movie(source_code_data)
 		self.assertEqual(source_code.title, "Source Code")
 	def test_2(self):
-		source_code_data = omdb_data('Source Code')
-		source_code = Movie(source_code_data)
 		self.assertEqual(source_code.director, "Duncan Jones")
 	def test_3(self):
-		source_code_data = omdb_data('Source Code')
-		source_code = Movie(source_code_data)
-		self.assertIn(source_code.get_list_of_actors(), "Jake Gyllenhaal")
+		self.assertIn("Jake Gyllenhaal", source_code.get_best_actor())
 	def test_4(self):
-		source_code = Movie(source_code_data)
-		self.assertEqual(source_code_length.extremely_long_movie(), "This movie is less than 2 hours.  Enjoy!")
-# class DBTests(unittest.TestCase):
-# 	def test_5(self):
-# 		conn = sqlite3.connect('finalproject.db')
-# 		cur = conn.cursor()
-# 		cur.execute('SELECT * FROM Tweets');
-# 		result = cur.fetchall()
-# 		self.assertTrue(len(result)>=20)
-# 		conn.close()
+		self.assertEqual(source_code.get_year_of_release(), "2011")
+class DBTests(unittest.TestCase):
+	def test_5(self):
+		conn = sqlite3.connect('finalproject.db')
+		cur = conn.cursor()
+		cur.execute('SELECT * FROM Movies');
+		result = cur.fetchall()
+		self.assertTrue(len(result[0]), 5)
+		conn.close()
 # 	def test_6(self):
 # 		conn = sqlite3.connect('finalproject.db')
 # 		cur = conn.cursor()
