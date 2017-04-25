@@ -53,7 +53,7 @@ def omdb_data(movie_title): #Defining a function to use OMDB API
 		cache_file.close()
 		return json.loads(omdb_data)
 
-list_of_movie_titles = ('Batman', 'Ironman', 'Superman') #making a list of at least three movies 
+list_of_movie_titles = ['Source Code', 'Edge of Tomorrow', 'Star Wars'] #making a list of at least three movies 
 
 movie1 = omdb_data(list_of_movie_titles[0])
 movie2 = omdb_data(list_of_movie_titles[1])
@@ -62,7 +62,7 @@ movie3 = omdb_data(list_of_movie_titles[2])
 list_of_movie_dictionaries = [movie1, movie2, movie3]  #Creating a list of Movie dictionaries using omdb_data function (defined above)
 
 
-class Movie:
+class Movie():
 	def __init__(self, omdb_moviedata):
 		self.omdb_moviedata = omdb_moviedata
 		self.title = omdb_moviedata['Title']
@@ -75,14 +75,8 @@ class Movie:
 	def get_number_of_languages(self):
 		return len(self.omdb_moviedata['Language'].split(','))
 
-	def get_plot(self):
-		return self.omdb_moviedata['Plot']
-
-	def get_year_of_release(self):
-		return self.omdb_moviedata['Year']
-
 	def get_movie_rating(self):
-		return self.omdb_moviedata['imdbRating']
+		return float(self.omdb_moviedata['imdbRating'])
 
 	def get_id(self):
 		return self.omdb_moviedata['imdbID']
@@ -94,6 +88,7 @@ movie_objects=[] 			# Creating a Movie instances in a list for three movies
 for x in list_of_movie_dictionaries:
 	mov_object = Movie(x)
 	movie_objects.append(mov_object)
+
 
 
 def get_movie_data(movie_lst):  #CHANGE THIS 
@@ -112,7 +107,7 @@ def get_movie_data(movie_lst):  #CHANGE THIS
 	return movie_tuple_list
 
 movie_tuple_list = get_movie_data(movie_objects)
-
+print (type(movie_tuple_list))
 # pprint (movie_tuple_list)
 
 
@@ -148,31 +143,23 @@ movie1tweets = tweets(list_of_movie_titles[0])
 movie2tweets = tweets(list_of_movie_titles[1])
 movie3tweets = tweets(list_of_movie_titles[2])
 
-movietweetlist = [movie1tweets, movie2tweets, movie3tweets]  #Making a list of tweets using the title of each movie 
-
+movietweet = [movie1tweets, movie2tweets, movie3tweets]  #Making a list of tweets using the title of each movie 
+movietweetlist = zip(movietweet, list_of_movie_titles)
 # pprint (movie1tweets)
 
 
 tweet_tuple_list = []
 for x in movietweetlist:
-	for movie in x:
+	for movie in x[0]:
 		text = movie['text']	
 		tweet_id = movie['id_str']
 		user_id = movie['user']['id_str']
 		favorites = movie['favorite_count']
 		retweets = movie['retweet_count']
-		if "Batman" in movie['text']:
-			movie_name = "Batman"
-		if "Superman" in movie['text']:
-			movie_name = "Superman"
-		if "Antman" in movie['text']: 
-			movie_name = 'Antman'
+		movie_name = x[1]
 
 		tweet_tuple = (tweet_id, text, user_id, favorites, retweets, movie_name)
 		tweet_tuple_list.append(tweet_tuple)
-
-
-# pprint (tweet_tuple_list)
 
 
 
@@ -292,23 +279,72 @@ conn.commit()
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~SQL Queries~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 cur.execute('SELECT user FROM Users')
-screen_names = [user[0] for user in cur.fetchall()]
-print (screen_names)
+list_of_screen_names = [user[0] for user in cur.fetchall()]
+print (list_of_screen_names)
 
 
-cur.execute("SELECT Movies.title, Users.user FROM Movies INNER JOIN Users ON Users.number_followers > 10000")
+cur.execute("SELECT Movies.title, Users.user FROM Movies INNER JOIN Users ON Users.number_followers > 100000")
 popular_followers = cur.fetchall()
 print (popular_followers)
 
-conn.close()
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ DATA PROCESSING TECHNIQUES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Data Processing Technique #1 
+cur.execute('SELECT title, IMDB_rating FROM Movies')
+movie_ratings = cur.fetchall()
+print (movie_ratings)
 
+conn.close()
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  DATA PROCESSING  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Data Processing Method #1: Dictionary Accumulation 
+
+movies_getting_tweets_from_popular_users = {}
+for movie in popular_followers:
+	if movie[0] in movies_getting_tweets_from_popular_users: 
+		movies_getting_tweets_from_popular_users[movie[0]] +=1 
+	else:
+		movies_getting_tweets_from_popular_users[movie[0]] = 1 
+
+dp1 = str(movies_getting_tweets_from_popular_users)
+print (dp1)
+
+# Data Processing Method #2: Sorting 
+
+movie_rating = sorted(movie_ratings, key = lambda x: x[-1])
+movie_rating1 = "The movie " + str(movie_rating[0][0]) + " has a rating of " + str(movie_rating[0][1]) + ".  "
+movie_rating2 = "The movie " + str(movie_rating[1][0]) + ' has a rating of ' + str(movie_rating[1][1]) + '.  '
+movie_rating3 = "The movie " + str(movie_rating[2][0]) + " has a rating of " + str(movie_rating[2][1]) + '.  '
+movie_rating_summary = movie_rating1 + movie_rating2 + movie_rating3 + "I love all these movies, but the ratings from smallest to largest are here if you like to pick movies based on that!"
+print (movie_rating_summary)
+
+# Data Processing Method #3: Mapping
+
+# favorite_count
+
+# Data Processing Method #4: 
+
+# favorite_count
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Textfile Output From Data Processing Techniques ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Adding the findings from the data processing to textfile 
+
+# Textfile = 'finalproject.txt'
+# _file = open(Textfile, 'w')
+# _file.write(dp1)
+# _file.write(dp2)
+# _file.write(dp3)
+# _file.write(dp4)
+# _file.close()
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~TEST CASES~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-source_code_data = omdb_data('Source Code')
-source_code = Movie(source_code_data)
+# The following code below is written for the purpose of testing to make sure that the program is running correctly.  
+
+source = omdb_data('Source Code')
+print (source)
+# a = Movie(source)
+# print (a.get_id())
+# print (a.title)
+# print (a.director)
+# print (a.get_best_actor())
+
 conn = sqlite3.connect('finalproject.db')
 cur = conn.cursor()
 cur.execute('SELECT movie_ID FROM Movies');
@@ -316,42 +352,53 @@ result = cur.fetchall()
 # print (result[1][0])
 
 
-class MovieTests(unittest.TestCase):
-	def test_1(self):
-		self.assertEqual(source_code.title, "Source Code")
-	def test_2(self):
-		self.assertEqual(source_code.director, "Duncan Jones")
-	def test_3(self):
-		self.assertIn("Jake Gyllenhaal", source_code.get_best_actor())
-	def test_4(self):
-		self.assertEqual(source_code.get_year_of_release(), "2011")
-class DBTests(unittest.TestCase):
-	def test_5(self):
-		conn = sqlite3.connect('finalproject.db')
-		cur = conn.cursor()
-		cur.execute('SELECT * FROM Movies');
-		result = cur.fetchall()
-		self.assertTrue(len(result[0]), 5)
-		conn.close()
-# 	def test_6(self):
-# 		conn = sqlite3.connect('finalproject.db')
-# 		cur = conn.cursor()
-# 		cur.excute('SELECT * FROM Tweets'); 
-# 		result = cur.fetchall()
-# 		self.assertEqual(len(result[0]), 6)
-# 		conn.close()
-# 	def test_7(self):
-# 		conn = sqlite3.connect('finalproject.db')
-# 		cur = conn.cursor()
-# 		cur.execute('SELECT * FROM Movies');
-# 		result = cur.fetchall()
-# 		self.assertEqual(len(result[0]), 6)	
-# 	def test_8(self):
-# 		conn = sqlite3.connect('finalproject.db')
-# 		cur = conn.cursor()
-# 		cur.execute('SELECT * FROM Users'); 
-# 		result = cur.fetchall()
-# 		self.assertEqual(len(resutl[0]), 3)
+# print (movie_objects[1].get_id())
+# print (movie_objects[1].title)
+# print (movie_objects[1].runtime)
+# print (movie_objects[1].director)
+# print (movie_objects[1].get_best_actor())
+# print (movie_objects[1].get_number_of_languages())
+# print (movie_objects[1].get_plot())
+# print (movie_objects[1].get_year_of_release())
+# print (movie_objects[1].get_movie_rating())
+# print (movie_objects[1].get_id())
+
+class FunctionTests(unittest.TestCase):
+	def test_omdb_data(self):
+		self.assertEqual(type(movie1), dict)
+
+	def test_get_movie_data(self):
+		self.assertEqual(type(movie_tuple_list), list)
+
+	def test_tweets(self):
+		self.assertEqual(type(movie1tweets), list)
+
+	def test_getting_twitter_user_info(self):
+		self.assertEqual(type(movie1users), list)
+
+	def test_getting_twitter_user_mentions(self):
+		self.assertEqual(type(movie1usermentions), list)
+
+class MovieClassTests(unittest.TestCase):
+	def test_id(self):
+		self.assertEqual(movie_objects[1].get_id(), 'tt1631867')
+
+	def test_title(self):
+		self.assertEqual(movie_objects[1].title, "Edge of Tomorrow")
+
+	def test_best_actor(self):
+		self.assertIn(movie_objects[1].get_best_actor(), 'Tom Cruise')
+
+	def test_languages(self):
+		self.assertEqual(movie_objects[1].get_number_of_languages(), 1)
+
+	def test_rating(self):
+		self.assertEqual(movie_objects[1].get_movie_rating(), 7.9)
+		
+	def test_string_method(self):
+		self.assertEqual(movie_objects[1].__str__(), 'Edge of Tomorrow is directed by Doug Liman and is 113 min')
+
+
 # ## Remember to invoke all your tests...
 if __name__ == "__main__":
     unittest.main(verbosity=2)
