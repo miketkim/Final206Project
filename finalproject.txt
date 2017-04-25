@@ -1,0 +1,8 @@
+{'Star Wars: Episode IV - A New Hope': 3, 'Edge of Tomorrow': 2, 'Source Code': 1}
+
+The movie Source Code has a rating of 7.5.  The movie Edge of Tomorrow has a rating of 7.9.  The movie Star Wars: Episode IV - A New Hope has a rating of 8.7.  I love all these movies, but the ratings from smallest to largest are here if you like to pick movies based on that!
+
+The following movies had tweets with over 140 characters: ('Edge of Tomorrow', 142) and ('Edge of Tomorrow', 152).  Clearly these users are passionate about their movies! 
+
+The following users who tweeted about my favorite moves have more than 10000 followers on twitter: ['phpclasses', 'phpclasses', 'uknewse'].
+

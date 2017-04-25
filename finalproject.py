@@ -86,27 +86,25 @@ class Movie():
 
 movie_objects=[] 			# Creating a Movie instances in a list for three movies 
 for x in list_of_movie_dictionaries:
-	mov_object = Movie(x)
-	movie_objects.append(mov_object)
+	movies = Movie(x)
+	movie_objects.append(movies)
 
 
+def movie_data_in_tuples(movie_objects):
+	movie_tuple_data =[]
+	for x in movie_objects:
+		movie_id = x.get_id()
+		movie_title = x.title
+		movie_director = x.director
+		movie_languages = x.get_number_of_languages()
+		movie_imdb_rating = x.get_movie_rating()
+		movie_best_actor = x.get_best_actor()
+		movie_tuples = (movie_id, movie_title, movie_director, movie_languages, movie_imdb_rating, movie_best_actor)
 
-def get_movie_data(movie_lst):  #CHANGE THIS 
-	movie_tuple_list = []
-	for movie in movie_objects:  
-		movie_id = movie.get_id()
-		movie_director = movie.director
-		movie_title = movie.title
-		movie_imdb_rating = movie.get_movie_rating() 
-		movie_lead_actor = movie.get_best_actor()
-		movie_num_lang = movie.get_number_of_languages()
+		movie_tuple_data.append(movie_tuples)
+	return movie_tuple_data 
 
-		movie_tup = (movie_id, movie_title, movie_director, movie_num_lang, movie_imdb_rating, movie_lead_actor)
-		movie_tuple_list.append(movie_tup)
-
-	return movie_tuple_list
-
-movie_tuple_list = get_movie_data(movie_objects)
+movie_tuple_list = movie_data_in_tuples(movie_objects)
 # print (type(movie_tuple_list))
 # pprint (movie_tuple_list)
 
@@ -254,7 +252,7 @@ cur.execute('DROP TABLE IF EXISTS Movies')
 tweets_table_spec = 'CREATE TABLE IF NOT EXISTS Tweets (tweet_id TEXT PRIMARY KEY, message TEXT, user_id TEXT, num_favs INTEGER, num_retweets INTEGER, movie_name TEXT)' 
 cur.execute(tweets_table_spec)	
 
-tweet_db = 'INSERT INTO Tweets VALUES (?, ?, ?, ?, ?, ?)'
+tweet_db = 'INSERT or IGNORE INTO Tweets VALUES (?, ?, ?, ?, ?, ?)'
 for tweet in tweet_tuple_list:
 	cur.execute(tweet_db, tweet)
 conn.commit()
@@ -278,23 +276,27 @@ conn.commit()
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~SQL Queries~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+
+
 cur.execute("SELECT Movies.Title, Tweets.num_retweets from Movies INNER JOIN Tweets on Movies.title = Tweets.movie_name")
 movie_retweets = cur.fetchall()
-print (movie_retweets)
+# print (movie_retweets)
 
 cur.execute('SELECT Movies.Title, Tweets.message from Movies INNER JOIN Tweets on Movies.title = Tweets.movie_name')
 movie_tweets = cur.fetchall()
-print (movie_tweets)
+# print (movie_tweets)
 
 cur.execute('SELECT title, IMDB_rating FROM Movies')
 movie_ratings = cur.fetchall()
 # print (movie_ratings)
 
+cur.execute('SELECT Users.user, Tweets.message From Users INNER JOIN Tweets on Tweets.user_id = Users.user_ID WHERE Users.number_followers>10000')
+tweets_d = cur.fetchall()
+print (tweets_d)
 
-conn.execute('SELECT Users.user, Tweets.message from Tweets INNER JOIN Users on Users.user_ID = Tweets.user_id')
-tweets_and_users = cur.fetchall()
-print (tweets_and_users)
 
+
+conn.close()
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  DATA PROCESSING  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Data Processing Method #1: Dictionary Accumulation 
@@ -307,8 +309,8 @@ for movie in movie_retweets:
 		else:
 			movies_getting_lots_of_retweets[movie[0]] = 1 
 
-dp1 = str(movies_getting_lots_of_retweets)
-print (dp1)
+retweet_summary = str(movies_getting_lots_of_retweets)
+print ("The following stats on number of times one my favorites movies got over 50 retweets " + retweet_summary)
 
 # Data Processing Method #2: Sorting 
 
@@ -326,6 +328,8 @@ def return_character_count(x):
 
 character_count = map(return_character_count, movie_tweets)
 # print (character_count)
+
+
 over_140_characters = []
 for x in character_count:
 	if x[1] > 140:
@@ -334,33 +338,27 @@ character_count_summary = "The following movies had tweets with over 140 charact
 print (character_count_summary)
 
 # Data Processing Method #4: List Comprehension 
+twitter_handles = [x[0] for x in tweets_d]
 
-
-
-
-
-
+twitter_handle_summary = "The following users who tweeted about my favorite moves have more than 10000 followers on twitter: " + str(twitter_handles) + "."
+print (twitter_handle_summary)
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Textfile Output From Data Processing Techniques ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Adding the findings from the data processing to textfile 
 
-# Textfile = 'finalproject.txt'
-# _file = open(Textfile, 'w')
-# _file.write(dp1)
-# _file.write(dp2)
-# _file.write(dp3)
-# _file.write(dp4)
-# _file.close()
+Textfile = 'finalproject.txt'
+_file = open(Textfile, 'w')
+_file.write(retweet_summary + "\n\n")
+_file.write(movie_rating_summary + "\n\n")
+_file.write(character_count_summary + "\n\n")
+_file.write(twitter_handle_summary + "\n\n")
+_file.close()
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~TEST CASES~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # The following code below is written for the purpose of testing to make sure that the program is running correctly.  
 
-conn = sqlite3.connect('finalproject.db')
-cur = conn.cursor()
-cur.execute('SELECT movie_ID FROM Movies');
-result = cur.fetchall()
 # print (result[1][0])
 
 
@@ -379,7 +377,7 @@ class FunctionTests(unittest.TestCase):
 	def test_omdb_data(self):
 		self.assertEqual(type(movie1), dict)
 
-	def test_get_movie_data(self):
+	def test_movie_data(self):
 		self.assertEqual(type(movie_tuple_list), list)
 
 	def test_tweets(self):
@@ -390,6 +388,9 @@ class FunctionTests(unittest.TestCase):
 
 	def test_getting_twitter_user_mentions(self):
 		self.assertEqual(type(movie1usermentions), list)
+
+	def test_return_character_count(self):
+		self.assertEqual(type(character_count), map)
 
 class MovieClassTests(unittest.TestCase):
 	def test_id(self):
@@ -410,6 +411,28 @@ class MovieClassTests(unittest.TestCase):
 	def test_string_method(self):
 		self.assertEqual(movie_objects[1].__str__(), 'Edge of Tomorrow is directed by Doug Liman and is 113 min')
 
+class DBTests(unittest.TestCase):
+	def test_1(self):
+		conn = sqlite3.connect('finalproject.db')
+		cur = conn.cursor()
+		cur.execute('SELECT * FROM Movies');
+		result = cur.fetchall()
+		self.assertTrue(len(result[0]), 5)
+		conn.close()
+
+	def test_2(self):
+		conn = sqlite3.connect('finalproject.db')
+		cur = conn.cursor()
+		cur.execute('SELECT movie_ID FROM Movies');
+		result = cur.fetchall()
+		self.assertEqual(len(result[1][0]), 9)
+
+	def test_3(self):
+		conn = sqlite3.connect('finalproject.db')
+		cur = conn.cursor()
+		cur.execute('SELECT * FROM Movies');
+		result = cur.fetchall()
+		self.assertEqual(len(result[0]), 6)	
 
 # ## Remember to invoke all your tests...
 if __name__ == "__main__":
