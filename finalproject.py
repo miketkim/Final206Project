@@ -310,8 +310,9 @@ for movie in movie_retweets:
 		else:
 			movies_getting_lots_of_retweets[movie[0]] = 1 
 
-retweet_summary = str(movies_getting_lots_of_retweets)
-print ("The following stats on number of times one my favorites movies got over 50 retweets " + retweet_summary)
+retweet_ = str(movies_getting_lots_of_retweets)
+retweet_summary = "The following stats on number of times one my favorites movies got over 50 retweets " + str(retweet_)
+print (retweet_summary)
 
 # Data Processing Method #2: Sorting 
 
