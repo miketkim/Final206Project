@@ -297,6 +297,7 @@ print (tweets_d)
 
 
 conn.close()
+
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  DATA PROCESSING  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Data Processing Method #1: Dictionary Accumulation 
@@ -349,6 +350,7 @@ print (twitter_handle_summary)
 
 Textfile = 'finalproject.txt'
 _file = open(Textfile, 'w')
+_file.write("Michael's Summary of Twitter For His Favorite Moves (4/25/17): \n\n\n")
 _file.write(retweet_summary + "\n\n")
 _file.write(movie_rating_summary + "\n\n")
 _file.write(character_count_summary + "\n\n")

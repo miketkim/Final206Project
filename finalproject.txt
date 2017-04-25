@@ -1,4 +1,7 @@
-{'Star Wars: Episode IV - A New Hope': 3, 'Edge of Tomorrow': 2, 'Source Code': 1}
+Michael's Summary of Twitter For His Favorite Moves (4/25/17): 
+
+
+{'Source Code': 1, 'Edge of Tomorrow': 2, 'Star Wars: Episode IV - A New Hope': 3}
 
 The movie Source Code has a rating of 7.5.  The movie Edge of Tomorrow has a rating of 7.9.  The movie Star Wars: Episode IV - A New Hope has a rating of 8.7.  I love all these movies, but the ratings from smallest to largest are here if you like to pick movies based on that!
 
