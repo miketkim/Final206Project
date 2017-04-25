@@ -53,7 +53,7 @@ def omdb_data(movie_title): #Defining a function to use OMDB API
 		cache_file.close()
 		return json.loads(omdb_data)
 
-list_of_movie_titles = ['Source Code', 'Edge of Tomorrow', 'Star Wars'] #making a list of at least three movies 
+list_of_movie_titles = ['Source Code', 'Edge of Tomorrow', 'Star Wars: Episode IV - A New Hope'] #making a list of at least three movies 
 
 movie1 = omdb_data(list_of_movie_titles[0])
 movie2 = omdb_data(list_of_movie_titles[1])
@@ -107,7 +107,7 @@ def get_movie_data(movie_lst):  #CHANGE THIS
 	return movie_tuple_list
 
 movie_tuple_list = get_movie_data(movie_objects)
-print (type(movie_tuple_list))
+# print (type(movie_tuple_list))
 # pprint (movie_tuple_list)
 
 
@@ -276,33 +276,38 @@ for user in twitter_touple_lst:
 	cur.execute(user_db, user)
 conn.commit()
 
-
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~SQL Queries~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-cur.execute('SELECT user FROM Users')
-list_of_screen_names = [user[0] for user in cur.fetchall()]
-print (list_of_screen_names)
 
+cur.execute("SELECT Movies.Title, Tweets.num_retweets from Movies INNER JOIN Tweets on Movies.title = Tweets.movie_name")
+movie_retweets = cur.fetchall()
+print (movie_retweets)
 
-cur.execute("SELECT Movies.title, Users.user FROM Movies INNER JOIN Users ON Users.number_followers > 100000")
-popular_followers = cur.fetchall()
-print (popular_followers)
+cur.execute('SELECT Movies.Title, Tweets.message from Movies INNER JOIN Tweets on Movies.title = Tweets.movie_name')
+movie_tweets = cur.fetchall()
+print (movie_tweets)
 
 cur.execute('SELECT title, IMDB_rating FROM Movies')
 movie_ratings = cur.fetchall()
-print (movie_ratings)
+# print (movie_ratings)
 
-conn.close()
+
+conn.execute('SELECT Users.user, Tweets.message from Tweets INNER JOIN Users on Users.user_ID = Tweets.user_id')
+tweets_and_users = cur.fetchall()
+print (tweets_and_users)
+
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  DATA PROCESSING  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 # Data Processing Method #1: Dictionary Accumulation 
 
-movies_getting_tweets_from_popular_users = {}
-for movie in popular_followers:
-	if movie[0] in movies_getting_tweets_from_popular_users: 
-		movies_getting_tweets_from_popular_users[movie[0]] +=1 
-	else:
-		movies_getting_tweets_from_popular_users[movie[0]] = 1 
+movies_getting_lots_of_retweets = {}
+for movie in movie_retweets:
+	if int(movie[1]) > 50:
+		if movie[0] in movies_getting_lots_of_retweets: 
+			movies_getting_lots_of_retweets[movie[0]] += 1 
+		else:
+			movies_getting_lots_of_retweets[movie[0]] = 1 
 
-dp1 = str(movies_getting_tweets_from_popular_users)
+dp1 = str(movies_getting_lots_of_retweets)
 print (dp1)
 
 # Data Processing Method #2: Sorting 
@@ -316,11 +321,26 @@ print (movie_rating_summary)
 
 # Data Processing Method #3: Mapping
 
-# favorite_count
+def return_character_count(x):
+	return (x[0], len(x[1]))
 
-# Data Processing Method #4: 
+character_count = map(return_character_count, movie_tweets)
+# print (character_count)
+over_140_characters = []
+for x in character_count:
+	if x[1] > 140:
+		over_140_characters.append(x)
+character_count_summary = "The following movies had tweets with over 140 characters: " + str(over_140_characters[0]) + " and " + str(over_140_characters[1]) + ".  Clearly these users are passionate about their movies! "
+print (character_count_summary)
 
-# favorite_count
+# Data Processing Method #4: List Comprehension 
+
+
+
+
+
+
+
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Textfile Output From Data Processing Techniques ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Adding the findings from the data processing to textfile 
@@ -336,14 +356,6 @@ print (movie_rating_summary)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~TEST CASES~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # The following code below is written for the purpose of testing to make sure that the program is running correctly.  
-
-source = omdb_data('Source Code')
-print (source)
-# a = Movie(source)
-# print (a.get_id())
-# print (a.title)
-# print (a.director)
-# print (a.get_best_actor())
 
 conn = sqlite3.connect('finalproject.db')
 cur = conn.cursor()
@@ -394,7 +406,7 @@ class MovieClassTests(unittest.TestCase):
 
 	def test_rating(self):
 		self.assertEqual(movie_objects[1].get_movie_rating(), 7.9)
-		
+
 	def test_string_method(self):
 		self.assertEqual(movie_objects[1].__str__(), 'Edge of Tomorrow is directed by Doug Liman and is 113 min')
 
