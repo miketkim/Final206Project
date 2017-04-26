@@ -290,9 +290,9 @@ cur.execute('SELECT title, IMDB_rating FROM Movies')
 movie_ratings = cur.fetchall()
 # print (movie_ratings)
 
-cur.execute('SELECT Users.user, Tweets.message From Users INNER JOIN Tweets on Tweets.user_id = Users.user_ID WHERE Users.number_followers>10000')
-tweets_d = cur.fetchall()
-print (tweets_d)
+cur.execute('SELECT Users.user, Tweets.message FROM Users INNER JOIN Tweets on Tweets.user_id = Users.user_ID WHERE Users.number_followers > 10000')
+popular_users = cur.fetchall()
+# print (popular_users)
 
 
 
@@ -334,13 +334,15 @@ character_count = map(return_character_count, movie_tweets)
 
 over_140_characters = []
 for x in character_count:
-	if x[1] > 140:
+	if x[1] >= 140:
 		over_140_characters.append(x)
-character_count_summary = "The following movies had tweets with over 140 characters: " + str(over_140_characters[0]) + " and " + str(over_140_characters[1]) + ".  Clearly these users are passionate about their movies! "
+
+
+character_count_summary = "The following movies had tweets with over 140 characters: " + str(over_140_characters) + ".  Clearly these users are passionate about their movies! "
 print (character_count_summary)
 
-# Data Processing Method #4: List Comprehension 
-twitter_handles = [x[0] for x in tweets_d]
+# # Data Processing Method #4: List Comprehension 
+twitter_handles = [x[0] for x in popular_users]
 
 twitter_handle_summary = "The following users who tweeted about my favorite moves have more than 10000 followers on twitter: " + str(twitter_handles) + "."
 print (twitter_handle_summary)
@@ -351,7 +353,7 @@ print (twitter_handle_summary)
 
 Textfile = 'finalproject.txt'
 _file = open(Textfile, 'w')
-_file.write("Michael's Summary of Twitter For His Favorite Moves (4/25/17): \n\n\n")
+_file.write("Michael's Summary of Twitter For His Favorite Movies (4/25/17): \n\n\n")
 _file.write(retweet_summary + "\n\n")
 _file.write(movie_rating_summary + "\n\n")
 _file.write(character_count_summary + "\n\n")
